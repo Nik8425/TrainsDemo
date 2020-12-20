@@ -1,0 +1,356 @@
+﻿<UserControl x:Class="TrainsDemo.View.TrainsListView"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+			 xmlns:trainViewModel="clr-namespace:TrainsDemo.ViewModel.Trains"
+			 xmlns:view="clr-namespace:TrainsDemo.View"
+			 xmlns:viewModel="clr-namespace:TrainsDemo.ViewModel"
+			 xmlns:import="clr-namespace:TrainsDemo"
+			 xmlns:WPFHelper="clr-namespace:WPFHelper;assembly=WPFHelper" 
+			 mc:Ignorable="d" 
+			 d:DesignHeight="450" d:DesignWidth="1250">
+
+	<UserControl.Resources>
+		<DataTemplate DataType="{x:Type trainViewModel:TrainViewModel}">
+			<view:TrainVariantView />
+		</DataTemplate>
+	</UserControl.Resources>
+
+	<Grid>
+
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition />
+		</Grid.RowDefinitions>
+
+		<!--кнопочки-->
+		<Grid Grid.Row="0" Margin="5">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="220"/>
+				<ColumnDefinition Width="220"/>
+				<ColumnDefinition Width="Auto"/>
+			</Grid.ColumnDefinitions>
+
+			<StackPanel Grid.Column="0" Orientation="Horizontal">
+
+				<Button	Content="{Binding Path=LoadButtonText}"
+						ToolTip="{Binding Path=LoadButtonTooltipText}"
+						Command="{Binding Path=Commands.LoadTrainScheduleCommand}"
+						IsEnabled="{Binding Path=DataContext.IsDataLoading, Converter={x:Static view:BoolInverter.Instance}, 
+										RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TabControl}}}"
+					/>
+
+			</StackPanel>
+
+			<StackPanel Grid.Column="1" Orientation="Horizontal" >
+
+				<CheckBox FlowDirection="RightToLeft" 
+						  Margin="20,0,0,0" 
+						  IsChecked="{Binding Path=ShowPairs, Mode=TwoWay}">
+					<CheckBox.Content>
+						<TextBlock Text=" :Объединять пары">
+						</TextBlock>
+					</CheckBox.Content>
+				</CheckBox>
+
+			</StackPanel>
+
+		</Grid>
+
+		<!--Список-->
+		<Grid Grid.Row="1">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="2.5*"/>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition/>
+			</Grid.ColumnDefinitions>
+
+			<ListView ItemsSource="{Binding Path=TrainCollectionView}"
+					  VirtualizingStackPanel.IsVirtualizing="True"
+					  SelectedItem="{Binding Path=SelectedTrainVariant}"
+					  Name="TrainListView"
+					  GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler"
+					  IsSynchronizedWithCurrentItem="True"
+					  SelectionChanged="ScrollToSelected">
+
+				<ListView.ItemContainerStyle>
+					<Style TargetType="ListViewItem">
+						<Style.Setters>
+							<!--<Setter Property="ContextMenu">
+								<Setter.Value>
+									<ContextMenu>
+
+										<MenuItem Header="{Binding Path=MenuItemSetPairText}" 
+												  Command="{Binding Path=Commands.SetPair}"
+												  CommandParameter="{Binding}"
+												  />
+
+										<MenuItem Header="Объединить варианты поезда" 
+												  Command="{Binding Path=Commands.JoinTrainVariantsCommand}"
+												  CommandParameter="{Binding}"
+												  IsEnabled="{Binding Path=JoinVariantsIsEnabled}"/>
+
+									</ContextMenu>
+								</Setter.Value>
+							</Setter>-->
+							<Setter Property="Background" Value="White"/>
+							<Setter Property="BorderBrush" Value="Gray"/>
+							<Setter Property="BorderThickness" Value="0,0,0,0"/>
+							<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+							<Setter Property="VerticalAlignment" Value="Stretch"/>
+						</Style.Setters>
+						<Style.Triggers>
+							<!--триггер для раскрашивания фона ячеек-->
+							<DataTrigger Binding="{Binding Path=TrainParity}" Value="{x:Static import:Parity.Even}">
+								<Setter Property="Background" Value="AliceBlue"/>
+							</DataTrigger>
+
+							<!--триггеры для рисования нижней границы ячейки-->
+							<DataTrigger Binding="{Binding Path=LastTrainVariantInTrain}" Value="True">
+								<Setter Property="BorderThickness" Value="0,0,0,0.8"/>
+							</DataTrigger>
+							<DataTrigger Binding="{Binding Path=LastTrainVariantInPair}" Value="True">
+								<Setter Property="BorderThickness" Value="0,0,0,2"/>
+							</DataTrigger>
+
+							<!--для выделенной строки. Нужно, т.к. мы меняем фон ячеек и стандартное выделенние перестаёт быть видимо-->
+							<Trigger Property="IsSelected" Value="True">
+								<Setter Property="Background" Value="LightGreen"/>
+							</Trigger>
+
+						</Style.Triggers>
+
+					</Style>
+				</ListView.ItemContainerStyle>
+
+				<ListView.View>
+					<GridView>
+						<GridView.Columns>
+
+							<GridViewColumn Width="40" Header="">
+								<GridViewColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=PositionInList}">
+										</TextBlock>
+									</DataTemplate>
+								</GridViewColumn.CellTemplate>
+							</GridViewColumn>
+
+							<WPFHelper:CustomImportColumn Width="30" SortPropertyName="ScheduleStatus">
+								<WPFHelper:CustomImportColumn.Header>
+									<TextBlock Text="Рас." ToolTip="Расписание: зелёный - хорошее, желтый - есть незначительные ошибки, красный - отсутствует"/>
+								</WPFHelper:CustomImportColumn.Header>
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=ScheduleStatus, Converter={x:Static view:ScheduleBadGoodStatusConverter.Instance}}"
+											   FontWeight="Bold"
+											   TextAlignment="Center">
+
+											<TextBlock.Style>
+												<Style TargetType="TextBlock">
+													<Setter Property="Background" Value="LimeGreen"/>
+													<Style.Triggers>
+														<DataTrigger Binding="{Binding Path=ScheduleStatus}" Value="{x:Static import:ScheduleStatus.NotExits}">
+															<Setter Property="Background" Value="LightSalmon"/>
+														</DataTrigger>
+														<DataTrigger Binding="{Binding Path=ScheduleStatus}" Value="{x:Static import:ScheduleStatus.WithErrors}">
+															<Setter Property="Background" Value="Yellow"/>
+														</DataTrigger>
+													</Style.Triggers>
+												</Style>
+											</TextBlock.Style>
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<GridViewColumn Header="Загруз." Width="42">
+								<GridViewColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=StateStatus, Converter={x:Static view:LoadStatusConverter.Instance}}"
+											   FontWeight="Bold"
+											   TextAlignment="Center">
+
+											<TextBlock.Style>
+												<Style TargetType="TextBlock">
+													<Setter Property="Visibility" Value="Hidden"/>
+													<Style.Triggers>
+														<DataTrigger Binding="{Binding Path=StateStatus}" Value="{x:Static import:LoadStatus.Loading}">
+															<Setter Property="Background" Value="Yellow"/>
+														</DataTrigger>
+														<DataTrigger Binding="{Binding Path=StateStatus}" Value="{x:Static import:LoadStatus.Loading}">
+															<Setter Property="Visibility" Value="Visible"/>
+														</DataTrigger>
+													</Style.Triggers>
+												</Style>
+											</TextBlock.Style>
+										</TextBlock>
+									</DataTemplate>
+								</GridViewColumn.CellTemplate>
+							</GridViewColumn>
+							
+							<WPFHelper:CustomImportColumn Width="42" Header="Номер" SortPropertyName="Number">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=Number}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="160" Header="Начальная станция" SortPropertyName="InitStationName">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=InitStationName}" 
+												   ToolTip="{Binding Path=InitStationExpress}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="160" Header="Конечная станция" SortPropertyName="FinStationName">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=FinStationName}" 
+												   ToolTip="{Binding Path=FinStationExpress}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="115" Header="График" SortPropertyName="Graphic">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=Graphic.Description}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="60" Header="Вр. отпр." SortPropertyName="InitTime">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=InitTime, Converter={x:Static view:TimeSpanToHourMinuteStringConverter.Instance}}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="50" Header="Рейсов" SortPropertyName="CountRuns">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=RunsCount}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="80" Header="Первый рейс" SortPropertyName="FirstRunDate">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=FirstRunDate, Mode=OneWay, Converter={x:Static view:DateToStringConverter.Instance}}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="80" Header="Посл. рейс" SortPropertyName="LastRunDate">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=LastRunDate, Mode=OneWay, Converter={x:Static view:DateToStringConverter.Instance}}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="100" Header="Перевезено пасс." SortPropertyName="TransportedPassCount">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=TransportedPassCount}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="60" Header="Осн. ваг." SortPropertyName="PassCarsCount">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=PassCarsCount}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="60" Header="Сл. ваг." SortPropertyName="CarsBriefCount">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=CarsBriefCount}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="240" Header="Комментарий" SortPropertyName="Comment">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=Comment}" ToolTip="{Binding Path=Comment}" IsEnabled="{Binding Path=CommentEnabled}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="68" Header="ID поезда" SortPropertyName="TrainID">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=TrainID, UpdateSourceTrigger=PropertyChanged}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="68" Header="ID в-та" SortPropertyName="ID">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=ID, UpdateSourceTrigger=PropertyChanged}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="180" Header="Комментарий к маршруту" SortPropertyName="ScheduleByRouteComment">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=ScheduleByRouteComment}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+							<WPFHelper:CustomImportColumn Width="68" Header="ID пары" SortPropertyName="TrainPairID">
+								<WPFHelper:CustomImportColumn.CellTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Path=TrainPairID, UpdateSourceTrigger=PropertyChanged}">
+										</TextBlock>
+									</DataTemplate>
+								</WPFHelper:CustomImportColumn.CellTemplate>
+							</WPFHelper:CustomImportColumn>
+
+						</GridView.Columns>
+					</GridView>
+				</ListView.View>
+			</ListView>
+
+			<GridSplitter Grid.Column="1" 
+						  VerticalAlignment="Stretch" 
+						  HorizontalAlignment="Center" 
+						  ShowsPreview="False" Width="3"/>
+
+			<ContentControl Grid.Column="2" 
+							Content="{Binding Path=SelectedTrainVariant}"/>
+
+		</Grid>
+	</Grid>
+</UserControl>
+
+	

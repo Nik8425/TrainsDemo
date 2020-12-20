@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{72D326DB-32EB-4195-8A6D-2E55A5A3201D}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>TrainsDemo</RootNamespace>
+    <AssemblyName>TrainsDemo</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="Xceed.Wpf.Toolkit">
+      <HintPath>..\ExternalLibrary\Xceed.Wpf.Toolkit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="ConstValues.cs" />
+    <Compile Include="Enums.cs" />
+    <Compile Include="InfoGenerator.cs" />
+    <Compile Include="Model\MainModel.cs" />
+    <Compile Include="Model\MainModelTrains.cs" />
+    <Compile Include="Model\IntermediateData\Schedule.cs" />
+    <Compile Include="Model\IntermediateData\SchedulePart.cs" />
+    <Compile Include="Model\IntermediateData\Train.cs" />
+    <Compile Include="Model\IntermediateData\TrainPair.cs" />
+    <Compile Include="Model\IntermediateData\TrainRun.cs" />
+    <Compile Include="Model\IntermediateData\TrainVariant.cs" />
+    <Compile Include="ViewModel\Commands\CommandViewModel.cs" />
+    <Compile Include="ViewModel\Commands\ICommands.cs" />
+    <Compile Include="ViewModel\Commands\RelayCommand.cs" />
+    <Compile Include="ViewModel\MainVindow\MainWindowCommands.cs" />
+    <Compile Include="ViewModel\MainVindow\MainWindowViewModel.cs" />
+    <Compile Include="ViewModel\Parity.cs" />
+    <Compile Include="ViewModel\Trains\TrainRunsListViewModel.cs" />
+    <Compile Include="ViewModel\Trains\TrainRunViewModel.cs" />
+    <Compile Include="ViewModel\Trains\TrainSchedulePartViewModel.cs" />
+    <Compile Include="ViewModel\Trains\TrainScheduleViewModel.cs" />
+    <Compile Include="ViewModel\Trains\TrainsListViewModel.cs" />
+    <Compile Include="ViewModel\Trains\TrainViewModel.cs" />
+    <Compile Include="ViewModel\ViewModelBase.cs" />
+    <Compile Include="View\Converters.cs" />
+    <Compile Include="View\InputBindingsManager.cs" />
+    <Compile Include="View\TrainRunsListView.xaml.cs">
+      <DependentUpon>TrainRunsListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\TrainScheduleView.xaml.cs">
+      <DependentUpon>TrainScheduleView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\TrainsListView.xaml.cs">
+      <DependentUpon>TrainsListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\TrainVariantView.xaml.cs">
+      <DependentUpon>TrainVariantView.xaml</DependentUpon>
+    </Compile>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="View\TrainRunsListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\TrainScheduleView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\TrainsListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\TrainVariantView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Extension\Extension.csproj">
+      <Project>{c57c871e-bbb3-41ac-9306-0bb2fdd86b05}</Project>
+      <Name>Extension</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TrainGraphic\TrainGraphic.csproj">
+      <Project>{b244aefa-f696-4132-b7ae-10fc04dca06d}</Project>
+      <Name>TrainGraphic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WPFHelper\WPFHelper.csproj">
+      <Project>{5dc8aa04-127f-4dcd-8070-cab48f0d0989}</Project>
+      <Name>WPFHelper</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

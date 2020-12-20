@@ -1,0 +1,100 @@
+﻿<UserControl x:Class="TrainsDemo.View.TrainRunsListView"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+			 xmlns:view="clr-namespace:TrainsDemo.View"
+			 
+			 mc:Ignorable="d" 
+			 d:DesignHeight="337" d:DesignWidth="943">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="3*"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<ListView ItemsSource="{Binding Path=TrainRuns}"
+				  VirtualizingStackPanel.IsVirtualizing="True"
+				  SelectedItem="{Binding Path=SelectedTrainRun}"
+				  SelectionChanged="ScrollToSelected">
+
+			<ListView.ItemContainerStyle>
+				<Style TargetType="ListViewItem">
+					<Style.Setters>
+						<Setter Property="ContextMenu">
+							<Setter.Value>
+								<ContextMenu>
+									<MenuItem Header="{Binding Path=TrainRunCorrectStatusMenuItemText}" 
+												  Command="{Binding Path=Commands.ChangeTrainRunCorrectStatusCommand}"
+												  CommandParameter="{Binding}"/>
+								</ContextMenu>
+							</Setter.Value>
+						</Setter>
+					</Style.Setters>
+
+					<Style.Triggers>
+						<!--триггеры для раскрашивания фона ячеек-->
+						<DataTrigger Binding="{Binding Path=ProblemWithCorrespEnds}" Value="True">
+							<Setter Property="Background" Value="LightSalmon"/>
+						</DataTrigger>
+
+						<!--для выделенной строки. Нужно, т.к. мы меняем фон ячеек и стандартное выделенние перестаёт быть видимо-->
+						<Trigger Property="IsSelected" Value="True">
+							<Setter Property="Background" Value="LightGreen"/>
+						</Trigger>
+					</Style.Triggers>
+				</Style>
+			</ListView.ItemContainerStyle>
+			<ListView.View>
+				<GridView>
+					<GridViewColumn Header="" Width="40"
+									DisplayMemberBinding="{Binding Path=PositionInList}">
+					</GridViewColumn>
+
+					<GridViewColumn Header="Дата отправления" Width="120">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=Date, Mode=OneWay, Converter={x:Static view:DateToStringConverter.Instance}}">
+									<TextBlock.Style>
+										<Style TargetType="TextBlock">
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding Path=TrainRun.IsFuture}" Value="True">
+													<Setter Property="Foreground" Value="Green"/>
+												</DataTrigger>
+												<DataTrigger Binding="{Binding Path=TrainRun.IsFuture}" Value="True">
+													<Setter Property="FontStyle" Value="Italic"/>
+												</DataTrigger>
+												<DataTrigger Binding="{Binding Path=TrainRun.IsFuture}" Value="True">
+													<Setter Property="ToolTip" Value="Дополнительный рейс"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</TextBlock.Style>
+								</TextBlock>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+					<GridViewColumn Header="ID" Width="80"
+									DisplayMemberBinding="{Binding Path=TrainRun.ID}">
+					</GridViewColumn>
+
+					<GridViewColumn Header="Перевезено пасс." Width="100"
+									DisplayMemberBinding="{Binding Path=TransportedPassCount}">
+					</GridViewColumn>
+					<GridViewColumn Header="Осн. ваг." Width="60"
+									DisplayMemberBinding="{Binding Path=PassCarsCount}">
+					</GridViewColumn>
+					<GridViewColumn Header="Сл. ваг." Width="60"
+									DisplayMemberBinding="{Binding Path=CarsBriefCount}">
+					</GridViewColumn>
+				</GridView>
+			</ListView.View>
+
+		</ListView>
+
+	</Grid>
+</UserControl>

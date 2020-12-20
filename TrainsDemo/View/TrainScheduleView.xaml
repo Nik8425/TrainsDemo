@@ -1,0 +1,501 @@
+﻿<UserControl x:Class="TrainsDemo.View.TrainScheduleView"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+			 xmlns:view="clr-namespace:TrainsDemo.View"
+			 mc:Ignorable="d" d:DesignHeight="100" d:DesignWidth="1100">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition/>
+		</Grid.RowDefinitions>
+
+		<WrapPanel>
+			<StackPanel Orientation="Horizontal">
+				<TextBlock Text="Время в пути:"/>
+				<TextBlock Text="{Binding Path=FullRunTime, Converter={x:Static view:NulableTimeSpanToHourMinuteStringConverter.Instance}}"
+						   Margin="5,0,15,0"/>
+			</StackPanel>
+
+			<StackPanel Orientation="Horizontal">
+				<TextBlock Text="Длина маршрута:"/>
+				<TextBlock Text="{Binding Path=Length}"
+						   Margin="5,0"/>
+				<TextBlock Text="км" Margin="0,0,15,0"/>
+			</StackPanel>
+
+			<StackPanel Orientation="Horizontal">
+				<TextBlock Text="Маршрутная скорость:"/>
+				<TextBlock Text="{Binding Path=Speed}"
+						   Margin="5,0"/>
+				<TextBlock Text="км/ч"/>
+			</StackPanel>
+
+		</WrapPanel>
+
+		<ListView Grid.Row="1"
+				  ItemsSource="{Binding Path=ScheduleParts}"
+				  SelectedItem="{Binding Path=SelectedPart}"
+				  SelectionChanged="ScrollToSelected"
+				  SelectionMode="Single">
+
+			<ListView.Resources>
+
+				<ContextMenu x:Key="itemContexMenu" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+					<MenuItem Header="{Binding Path=WholeScheduleViewModel.ConfirmScheduleCommandText, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+							  Command="{Binding WholeScheduleViewModel.TrainViewModel.Commands.SetOKScheduleCommand}"
+							  CommandParameter="{Binding}">
+					</MenuItem>
+				</ContextMenu>
+
+				<!-- Шаблоны ячеек для чтения и редактирования-->
+				<DataTemplate x:Key="ReadOnlyStationInPath">
+					<TextBlock Text="{Binding Path=IsInPath, Converter={x:Static view:BoolToCheckMarkConverter.Instance}}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="EditStationInPath">
+					<CheckBox IsChecked="{Binding Path = IsInPath, UpdateSourceTrigger=PropertyChanged}"/>
+				</DataTemplate>
+
+				<DataTemplate x:Key="ReadOnlyCodeExpress">
+					<TextBlock Text="{Binding Path = CodeExpress}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="EditCodeExpress">
+					<TextBox Text="{Binding Path = CodeExpress, UpdateSourceTrigger=PropertyChanged}" MaxLength="7"/>
+				</DataTemplate>
+
+				<DataTemplate x:Key="ReadOnlyTehStop">
+					<TextBlock Text="{Binding Path = TehStop, Converter={x:Static view:BoolToCheckMarkConverter.Instance}}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="EditTehStop">
+					<CheckBox IsChecked="{Binding Path = TehStop, UpdateSourceTrigger=PropertyChanged}"/>
+				</DataTemplate>
+
+				<DataTemplate x:Key="ReadOnlyKM">
+					<TextBlock Text="{Binding Path = KM}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="EditKM">
+					<TextBox Text="{Binding Path = KM}" MaxLength="5"/>
+				</DataTemplate>
+
+				<DataTemplate x:Key="ReadOnlyArrivalTime">
+					<TextBlock Text="{Binding Path=ArrivalTime, StringFormat=H:mm}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="EditArrivalTime">
+					<TextBox Text="{Binding Path = ArrivalTime, StringFormat=H:mm}" MaxLength="7"
+							 view:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"/>
+				</DataTemplate>
+
+				<DataTemplate x:Key="ReadOnlyArrivalTimeWithShift">
+					<TextBlock Text="{Binding Path=ArrivalTimeWithShift, StringFormat=H:mm}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="EditArrivalTimeWithShift">
+					<TextBox Text="{Binding Path = ArrivalTimeWithShift, StringFormat=H:mm}" MaxLength="7"
+							 view:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"/>
+				</DataTemplate>
+
+				<DataTemplate x:Key="ReadOnlyDepartureTime">
+					<TextBlock Text="{Binding Path=DepartureTime, StringFormat=H:mm}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="EditDepartureTime">
+					<TextBox Text="{Binding Path = DepartureTime, StringFormat=H:mm}" MaxLength="7"
+							 view:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"/>
+				</DataTemplate>
+
+				<DataTemplate x:Key="ReadOnlyDepartureTimeWithShift">
+					<TextBlock Text="{Binding Path=DepartureTimeWithShift, StringFormat=H:mm}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="EditDepartureTimeWithShift">
+					<TextBox Text="{Binding Path = DepartureTimeWithShift, Converter={x:Static view:NullableTimeToStringConverter.Instance}}" MaxLength="7"
+							 view:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"/>
+				</DataTemplate>
+
+				<DataTemplate x:Key="ReadOnlyArrivalDay">
+					<TextBlock Text="{Binding Path=ArrivalDay}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="EditArrivalDay">
+					<TextBox Text="{Binding Path = ArrivalDay}" MaxLength="1"
+							 view:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"/>
+				</DataTemplate>
+
+				<DataTemplate x:Key="ReadOnlyArrivalDayWithShift">
+					<TextBlock Text="{Binding Path=ArrivalDayWithShift}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="EditArrivalDayWithShift">
+					<TextBox Text="{Binding Path = ArrivalDayWithShift}" MaxLength="1"
+							 view:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"/>
+				</DataTemplate>
+
+				<DataTemplate x:Key="ReadOnlyDepartureDay">
+					<TextBlock Text="{Binding Path=DepartureDay}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="EditDepartureDay">
+					<TextBox Text="{Binding Path = DepartureDay}" MaxLength="1"
+							 view:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"/>
+				</DataTemplate>
+
+				<DataTemplate x:Key="ReadOnlyDepartureDayWithShift">
+					<TextBlock Text="{Binding Path=DepartureDayWithShift}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="EditDepartureDayWithShift">
+					<TextBox Text="{Binding Path = DepartureDayWithShift}" MaxLength="1"
+							 view:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"/>
+				</DataTemplate>
+
+			</ListView.Resources>
+
+			<ListView.ItemContainerStyle>
+				<Style TargetType="ListViewItem">
+
+					<Style.Setters>
+						<Setter Property="ContextMenu" Value="{StaticResource itemContexMenu}"/>
+						<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+						<Setter Property="VerticalAlignment" Value="Stretch"/>
+					</Style.Setters>
+
+					<Style.Triggers>
+
+						<!--триггер для раскрашивания фона ячеек-->
+						<DataTrigger Binding="{Binding Path=IsSchedulePartOK}" Value="False">
+							<Setter Property="Background" Value="LightSalmon"/>
+						</DataTrigger>
+
+						<DataTrigger Binding="{Binding Path=IsTrainChangeHasTimes}" Value="False">
+							<Setter Property="Background" Value="LightSalmon"/>
+						</DataTrigger>
+
+						<DataTrigger Binding="{Binding Path=IsInPath}" Value="False">
+							<Setter Property="Background" Value="LightGray"/>
+						</DataTrigger>
+
+						<!--для выделенной строки. Нужно, т.к. мы меняем фон ячеек и стандартное выделенние перестаёт быть видимо-->
+						<Trigger Property="IsSelected" Value="True">
+							<Setter Property="Background" Value="LightGreen"/>
+						</Trigger>
+
+					</Style.Triggers>
+
+				</Style>
+			</ListView.ItemContainerStyle>
+
+			<ListView.View>
+				<GridView>
+
+					<GridViewColumn Header="" Width="40"
+									DisplayMemberBinding="{Binding Path=PositionInList}">
+					</GridViewColumn>
+
+					<GridViewColumn Width="30">
+						<GridViewColumn.Header>
+							<TextBlock Text="Исп." ToolTip="Признак участия станции в прокладывании маршрута" TextAlignment="Center"/>
+						</GridViewColumn.Header>
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<ContentControl Content="{Binding}">
+									<ContentControl.Style>
+										<Style TargetType="ContentControl">
+											<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyStationInPath}"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsSelected}" Value="True">
+													<Setter Property="ContentTemplate" Value="{StaticResource EditStationInPath}"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</ContentControl.Style>
+								</ContentControl>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+					<GridViewColumn Header="Станция" Width="120"
+									DisplayMemberBinding="{Binding Path=StationName}">
+					</GridViewColumn>
+
+					<GridViewColumn Header="Код" Width="70">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<ContentControl Content="{Binding}">
+									<ContentControl.Style>
+										<Style TargetType="ContentControl">
+											<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyCodeExpress}"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsSelected}" Value="True">
+													<Setter Property="ContentTemplate" Value="{StaticResource EditCodeExpress}"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</ContentControl.Style>
+								</ContentControl>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+					<GridViewColumn Width="40">
+						<GridViewColumn.Header>
+							<TextBlock Text="&#128643;/&#128643;" ToolTip="Станция переприцепки. Должны быть заданы времена."/>
+						</GridViewColumn.Header>
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=SchedulePart.IsTrainChange, Converter={x:Static view:BoolToCheckMarkConverter.Instance}}">
+								</TextBlock>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+					<GridViewColumn Width="30">
+						<GridViewColumn.Header>
+							<TextBlock Text="Тех." ToolTip="Признак технической стоянки"/>
+						</GridViewColumn.Header>
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<ContentControl Content="{Binding}">
+									<ContentControl.Style>
+										<Style TargetType="ContentControl">
+											<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyTehStop}"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsSelected}" Value="True">
+													<Setter Property="ContentTemplate" Value="{StaticResource EditTehStop}"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</ContentControl.Style>
+								</ContentControl>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+					<GridViewColumn Width="45">
+						<GridViewColumn.Header>
+							<TextBlock Text="Сут Пр." ToolTip="Cутки прибытия на станцию по московскому времени"/>
+						</GridViewColumn.Header>
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<ContentControl Content="{Binding}">
+									<ContentControl.Style>
+										<Style TargetType="ContentControl">
+											<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyArrivalDayWithShift}"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsSelected}" Value="True">
+													<Setter Property="ContentTemplate" Value="{StaticResource EditArrivalDayWithShift}"/>
+												</DataTrigger>
+												<DataTrigger Binding="{Binding Path=ArrivalTimeHasValue}" Value="False">
+													<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyArrivalDayWithShift}"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</ContentControl.Style>
+								</ContentControl>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+					<GridViewColumn Width="50">
+						<GridViewColumn.Header>
+							<TextBlock Text="Приб." ToolTip="Время прибытия на станцию по московскому времени"/>
+						</GridViewColumn.Header>
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<ContentControl Content="{Binding}">
+									<ContentControl.Style>
+										<Style TargetType="ContentControl">
+											<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyArrivalTimeWithShift}"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsSelected}" Value="True">
+													<Setter Property="ContentTemplate" Value="{StaticResource EditArrivalTimeWithShift}"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</ContentControl.Style>
+								</ContentControl>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+					<GridViewColumn Width="30" DisplayMemberBinding="{Binding Path=StayTime}">
+						<GridViewColumn.Header>
+							<TextBlock Text="Ст." ToolTip="Время стоянки на станции (в минутах)"/>
+						</GridViewColumn.Header>
+					</GridViewColumn>
+
+					<GridViewColumn Width="50">
+						<GridViewColumn.Header>
+							<TextBlock Text="Отпр." ToolTip="Время отправления со станции по московскому времени"/>
+						</GridViewColumn.Header>
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<ContentControl Content="{Binding}">
+									<ContentControl.Style>
+										<Style TargetType="ContentControl">
+											<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyDepartureTimeWithShift}"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsSelected}" Value="True">
+													<Setter Property="ContentTemplate" Value="{StaticResource EditDepartureTimeWithShift}"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</ContentControl.Style>
+								</ContentControl>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+					<GridViewColumn Width="45">
+						<GridViewColumn.Header>
+							<TextBlock Text="Сут От." ToolTip="Cутки отправления со станции по московскому времени"/>
+						</GridViewColumn.Header>
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<ContentControl Content="{Binding}">
+									<ContentControl.Style>
+										<Style TargetType="ContentControl">
+											<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyDepartureDayWithShift}"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsSelected}" Value="True">
+													<Setter Property="ContentTemplate" Value="{StaticResource EditDepartureDayWithShift}"/>
+												</DataTrigger>
+												<DataTrigger Binding="{Binding Path=DepartureTimeHasValue}" Value="False">
+													<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyDepartureDayWithShift}"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</ContentControl.Style>
+								</ContentControl>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+					<GridViewColumn Width="45">
+						<GridViewColumn.Header>
+							<TextBlock Text="Раст." ToolTip="Растояние от начальной станции"/>
+						</GridViewColumn.Header>
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<ContentControl Content="{Binding}">
+									<ContentControl.Style>
+										<Style TargetType="ContentControl">
+											<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyKM}"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsSelected}" Value="True">
+													<Setter Property="ContentTemplate" Value="{StaticResource EditKM}"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</ContentControl.Style>
+								</ContentControl>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+					<GridViewColumn Width="45" DisplayMemberBinding="{Binding Path=Speed}">
+						<GridViewColumn.Header>
+							<TextBlock Text="Скор." ToolTip="Скорость"/>
+						</GridViewColumn.Header>
+					</GridViewColumn>
+
+					<GridViewColumn Width="45"
+									DisplayMemberBinding="{Binding Path=TimeShift, Converter={x:Static view:TimeShiftMinutesToTimeStringConverter.Instance}}">
+						<GridViewColumn.Header>
+							<TextBlock Text="Сдвиг*" ToolTip="Временной сдвиг в часах к московскому времени"/>
+						</GridViewColumn.Header>
+					</GridViewColumn>
+
+					<GridViewColumn Width="50">
+						<GridViewColumn.Header>
+							<TextBlock Text="Сут Пр.*" ToolTip="Cутки прибытия на станцию по местному времени"/>
+						</GridViewColumn.Header>
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<ContentControl Content="{Binding}">
+									<ContentControl.Style>
+										<Style TargetType="ContentControl">
+											<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyArrivalDay}"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsSelected}" Value="True">
+													<Setter Property="ContentTemplate" Value="{StaticResource EditArrivalDay}"/>
+												</DataTrigger>
+												<DataTrigger Binding="{Binding Path=ArrivalTimeHasValue}" Value="False">
+													<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyArrivalDay}"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</ContentControl.Style>
+								</ContentControl>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+					<GridViewColumn Width="50">
+						<GridViewColumn.Header>
+							<TextBlock Text="Приб.*" ToolTip="Время прибытия на станцию по местному времени"/>
+						</GridViewColumn.Header>
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<ContentControl Content="{Binding}">
+									<ContentControl.Style>
+										<Style TargetType="ContentControl">
+											<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyArrivalTime}"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsSelected}" Value="True">
+													<Setter Property="ContentTemplate" Value="{StaticResource EditArrivalTime}"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</ContentControl.Style>
+								</ContentControl>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+					<GridViewColumn Width="50">
+						<GridViewColumn.Header>
+							<TextBlock Text="Отпр.*" ToolTip="Время отправления со станции по местному времени"/>
+						</GridViewColumn.Header>
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<ContentControl Content="{Binding}">
+									<ContentControl.Style>
+										<Style TargetType="ContentControl">
+											<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyDepartureTime}"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsSelected}" Value="True">
+													<Setter Property="ContentTemplate" Value="{StaticResource EditDepartureTime}"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</ContentControl.Style>
+								</ContentControl>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+					<GridViewColumn Width="50">
+						<GridViewColumn.Header>
+							<TextBlock Text="Сут От.*" ToolTip="Cутки отправления со станции по местному времени"/>
+						</GridViewColumn.Header>
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<ContentControl Content="{Binding}">
+									<ContentControl.Style>
+										<Style TargetType="ContentControl">
+											<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyDepartureDay}"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsSelected}" Value="True">
+													<Setter Property="ContentTemplate" Value="{StaticResource EditDepartureDay}"/>
+												</DataTrigger>
+												<DataTrigger Binding="{Binding Path=DepartureTimeHasValue}" Value="False">
+													<Setter Property="ContentTemplate" Value="{StaticResource ReadOnlyDepartureDay}"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</ContentControl.Style>
+								</ContentControl>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+
+				</GridView>
+			</ListView.View>
+
+		</ListView>
+	</Grid>
+</UserControl>

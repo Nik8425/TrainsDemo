@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="TrainsDemo.View.TrainVariantView"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+			 xmlns:trainViewModel="clr-namespace:TrainsDemo.ViewModel.Trains"
+			 xmlns:view="clr-namespace:TrainsDemo.View"
+			 mc:Ignorable="d" 
+			 d:DesignHeight="321" d:DesignWidth="816">
+
+	<UserControl.Resources>
+		
+		<DataTemplate DataType="{x:Type trainViewModel:TrainRunsListViewModel}">
+			<view:TrainRunsListView />
+		</DataTemplate>
+
+		<DataTemplate DataType="{x:Type trainViewModel:TrainScheduleViewModel}">
+			<view:TrainScheduleView />
+		</DataTemplate>
+
+	</UserControl.Resources>
+
+	<TabControl IsSynchronizedWithCurrentItem="True" 
+				ItemsSource="{Binding Path=VariantViewModels}"
+				SelectedIndex="{Binding Path=SelectedTabIndex, Mode=TwoWay}">
+		
+		<TabControl.ItemTemplate>
+			<DataTemplate>
+				<TextBlock Text="{Binding Path=DisplayName}"/>
+			</DataTemplate>
+		</TabControl.ItemTemplate>
+
+	</TabControl>
+
+</UserControl>
