@@ -126,7 +126,7 @@ namespace TrainsDemo
 				new Station(15, "Арзамас 16"),
 				new Station(16, "Киров"),
 				new Station(17, "Благовещенск"),
-				new Station(18, "Нью-Йорк :-)"),
+				new Station(18, "Якутск"),
 				new Station(19, "Новосибирск"),
 				new Station(20, "Минск"),
 			};
